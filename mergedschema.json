@@ -1,0 +1,673 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "id": "http://azureml/designer/Module.json",
+    "title": "Module specification",
+    "description": "The definition of module specification",
+    "type": "object",
+    "required": [
+        "implementation"
+    ],
+    "oneOf": [
+        {
+            "required": [
+                "moduleIdentifier"
+            ]
+        },
+        {
+            "required": [
+                "amlModuleIdentifier"
+            ]
+        },
+        {
+            "required": [
+                "identifier"
+            ]
+        }
+    ],
+    "properties": {
+        "id": {
+            "deprecated": true,
+            "description": "Moved to metadata/annotations/familyId. A version 4 UUID. The id refers to the module, cannot be changed once created. NOTE: Only used for official modules, for internal use.",
+            "type": "string"
+        },
+        "name": {
+            "deprecated": true,
+            "description": "Moved to moduleIdentifier/moduleName. The name of module. Can not contain characters other than alphabets/digits/space. First character must be an alphabet.",
+            "type": "string"
+        },
+        "category": {
+            "description": "[Internal] Defines the category of the module, the module list shown in the Visual Interface are grouped by this information. Use \"/\" to add multiple level categories.",
+            "type": "string"
+        },
+        "moduleIdentifier": {
+            "deprecated": true,
+            "description": "Global unique identifier to the module.",
+            "type": "object",
+            "$ref": "#definitions/AmlModuleIdentifier"
+        },
+        "amlModuleIdentifier": {
+            "description": "Global unique identifier to the module.",
+            "type": "object",
+            "$ref": "#definitions/AmlModuleIdentifier"
+        },
+        "identifier": {
+            "deprecated": true,
+            "description": "Global unique identifier to the module.",
+            "type": "object",
+            "$ref": "#definitions/AmlModuleIdentifier"
+        },
+        "type": {
+            "deprecated": true,
+            "description": "Defines the type of the module. Should be one of the following: Basic, Mpi, HDInsight. Defaults to Basic if not specified. Different compute target should be attached for different type of modules.",
+            "type": "string"
+        },
+        "jobType": {
+            "description": "Defines job type of the module. Could be basic, mpi, hdi, Defaults to basic if not specified, which refers to run job on a single compute node.",
+            "type": "string",
+            "enum": [
+                "basic",
+                "hdi",
+                "mpi",
+                "Basic",
+                "Hdi",
+                "Mpi",
+                "BASIC",
+                "HDI",
+                "MPI"
+            ],
+            "default": "basic"
+        },
+        "description": {
+            "description": "Detailed description of the module. Could be multiple lines.",
+            "type": "string"
+        },
+        "metadata": {
+            "description": "A metadata structure to store additional information for modules.",
+            "type": "object",
+            "$ref": "#definitions/Metadata"
+        },
+        "meta": {
+            "description": "[Internal] A metadata structure to store additional information for modules.",
+            "type": "object",
+            "$ref": "#definitions/Meta"
+        },
+        "isDeterministic": {
+            "description": "Specify whether the module will always generate the same result when given the same input data. Defaults to True if not specified.",
+            "type": "boolean"
+        },
+        "inputs": {
+            "description": "Defines Input Ports and Parameters of the module.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#definitions/Input"
+            }
+        },
+        "outputs": {
+            "description": "Defines Output Ports of the module.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#definitions/Output"
+            }
+        },
+        "implementation": {
+            "description": "This block defines how and where to run the module code.",
+            "type": "object",
+            "$ref": "#definitions/Implementation"
+        },
+        "version": {
+            "description": "Specify the version of the schema of spec.",
+            "type": "string"
+        }
+    },
+    "definitions": {
+        "AmlEnvironment": {
+            "type": "object",
+            "properties": {
+                "docker": {
+                    "description": "This section configures settings related to the final Docker image built to the specifications of the environment and whether to use Docker containers to build the environment.",
+                    "type": "object",
+                    "$ref": "#definitions/DockerSection"
+                },
+                "python": {
+                    "description": "This section specifies which Python environment and interpreter to use on the target compute.",
+                    "$ref": "#definitions/PythonSection"
+                }
+            },
+            "additionalProperties": false
+        },
+        "AmlEnvironmentReference": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Specify the environment name which have been registered to the workspace.",
+                    "type": "string"
+                },
+                "version": {
+                    "description": "Specify the environment version. If not specified, use the latest version.",
+                    "type": "string"
+                }
+            }
+        },
+        "AmlModuleIdentifier": {
+            "type": "object",
+            "required": [
+                "moduleName",
+                "moduleVersion"
+            ],
+            "properties": {
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace is used to avoid naming conflicts of modules created by different teams or organizations.",
+                    "pattern": "^[a-z0-9\\-]+[a-z0-9\\-\\.]*([\\/][a-z0-9\\-]+)*$"
+                },
+                "moduleName": {
+                    "type": "string",
+                    "description": "The name of module.",
+                    "pattern": "^[\\w\\-_\\[\\]()]+(?:[ ]+[\\w\\-_\\[\\]()]+)*$"
+                },
+                "moduleVersion": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                    "description": "Version of the module."
+                }
+            }
+        },
+        "Annotations": {
+            "type": "object",
+            "properties": {
+                "tags": {
+                    "description": "Add a list of tags to the module to describe the category of the module.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "contact": {
+                    "description": "The contact info of this module's author team. Typically contains user or organization's name and email.",
+                    "type": "string"
+                },
+                "helpDocument": {
+                    "description": "The url of the module's documentation. Will be shown as a link on AML Designer's page.",
+                    "type": "string"
+                }
+            }
+        },
+        "ConcatPlaceholder": {
+            "type": "object",
+            "required": [
+                "concat"
+            ],
+            "properties": {
+                "concat": {
+                    "description": "Items to concatenate",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#definitions/StringOrPlaceholder"
+                    }
+                }
+            }
+        },
+        "Container": {
+            "type": "object",
+            "properties": {
+                "amlEnvironment": {
+                    "description": "Specify the runtime environment for the module to run.",
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "$ref": "#definitions/AmlEnvironment"
+                        },
+                        {
+                            "type": "object",
+                            "$ref": "#definitions/AmlEnvironmentReference"
+                        }
+                    ]
+                },
+                "image": {
+                    "description": "Note: Not implemented yet. Please use conda instead.\nSpecify the docker image path.",
+                    "$ref": "#definitions/StringOrPlaceholder"
+                },
+                "command": {
+                    "description": "The python function name for doing the inferencing. If not specified, will assume the function name to be run.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#definitions/StringOrPlaceholder"
+                    }
+                },
+                "args": {
+                    "description": "Specify the arguments used along with command. This list consists files and place holders of Inputs and Outputs.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#definitions/StringOrPlaceholder"
+                    }
+                },
+                "runConfig": {
+                    "type": "object",
+                    "$ref": "#definitions/RunConfig"
+                },
+                "additionalIncludes": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "Specify additionalFiles to include additional files to the snapshot."
+                }
+            },
+            "required": [
+                "command"
+            ],
+            "oneOf": [
+                {
+                    "required": [
+                        "amlEnvironment"
+                    ]
+                },
+                {
+                    "required": [
+                        "image"
+                    ]
+                }
+            ]
+        },
+        "DockerSection": {
+            "type": "object",
+            "properties": {
+                "baseImage": {
+                    "description": "The base image used for Docker-based runs.",
+                    "type": "string"
+                }
+            }
+        },
+        "Hdi": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string",
+                    "description": "The main file name, can be a python script or a jar file. It's a relative path to the snapshot folder."
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Files to be referenced by file. Specify relative paths to the snapshot folder."
+                },
+                "className": {
+                    "type": "string",
+                    "description": "Main class name when main file is a jar."
+                },
+                "jars": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Jar files to be referenced by file. Specify relative paths to the snapshot folder."
+                },
+                "pyFiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Python files to be referenced by file. Specify relative paths to the snapshot folder."
+                },
+                "archives": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Archives which referenced by file. Specify relative paths to the snapshot folder."
+                },
+                "conf": {
+                    "type": "object",
+                    "description": "Spark configuration properties."
+                },
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#definitions/StringOrPlaceholder"
+                    },
+                    "description": "Specify the arguments used along with file. This list may consist place holders of Inputs and Outputs."
+                }
+            },
+            "required": [
+                "file"
+            ]
+        },
+        "IfConditionArgumentType": {
+            "oneOf": [
+                {
+                    "$ref": "#definitions/IsPresentPlaceholder"
+                },
+                {
+                    "type": "boolean"
+                },
+                {
+                    "type": "string"
+                },
+                {
+                    "$ref": "#definitions/InputValuePlaceholder"
+                }
+            ]
+        },
+        "IfPlaceholder": {
+            "type": "object",
+            "required": [
+                "if"
+            ],
+            "properties": {
+                "if": {
+                    "type": "object",
+                    "required": [
+                        "cond",
+                        "then"
+                    ],
+                    "properties": {
+                        "cond": {
+                            "$ref": "#definitions/IfConditionArgumentType"
+                        }
+                    }
+                }
+            }
+        },
+        "Implementation": {
+            "type": "object",
+            "properties": {
+                "container": {
+                    "type": "object",
+                    "$ref": "#definitions/Container",
+                    "description": "Defines the required information for running."
+                },
+                "servingEntry": {
+                    "type": "object",
+                    "$ref": "#definitions/ServingEntry",
+                    "description": "[Internal] Used when deployed as a web service."
+                },
+                "hdi": {
+                    "type": "object",
+                    "$ref": "#definitions/Hdi",
+                    "description": "Defines the required information for running. (For hdi modules)"
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "container"
+                    ]
+                },
+                {
+                    "required": [
+                        "hdi"
+                    ]
+                }
+            ]
+        },
+        "Input": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The name of this Input. This field is used for program logic and cannot be duplicated inside the module. The name should not contain \"_\", \"/\", \"@\", \"[\", \"]\" as they are reserved for internal usage in the future.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Defines the data type(s) of this input.",
+                    "oneOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "optional": {
+                    "description": "Indicates whether this input is optional. Default value is False.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "default": {
+                    "description": "The default value for this parameter. The type of this value is dynamic. e.g. If type field in Input is Integer, this value should be Inteter. If type is String, this value should also be String.\nThis field is optional, will default to null or None if not specified.",
+                    "type": [
+                        "number",
+                        "boolean",
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "The detailed information that describes the parameter. This message will be displayed on the user interface when hovered on the Parameter panel.",
+                    "type": "string"
+                },
+                "min": {
+                    "description": "This field only exist when the type is Integer or Float. Specifies the minimum value that can be accepted. Specify Integer or Float value according to the parameter type.",
+                    "type": "number"
+                },
+                "max": {
+                    "description": "Similar to min. This field is to specify the maximum value that can be accepted.",
+                    "type": "number"
+                },
+                "options": {
+                    "description": "This field only exist when the type is Mode. Mode indicates that this is a Parameter that the value can be selected from a drop-down list. Use this field to specify the contents the drop-down list.",
+                    "type": "array"
+                },
+                "language": {
+                    "description": "[Internal] This field only exist when the type is Script. language indicates the language of the script. UX will enable syntax highlighting according to this field if specified. Currently supported options are Python, R, Sql, Json. If not specified, no syntax highlighting will be enabled.",
+                    "type": "string"
+                },
+                "columnPickerFor": {
+                    "description": "[Internal] This field only exist when the type is ColumnPicker. This field is to specify which input is targeted to for this item. Specify the name of the related input here.",
+                    "type": "string"
+                },
+                "columnSelectionCategories": {
+                    "description": "[Internal] This field only exist when the type is ColumnPicker. This specifies the category selected in the column picker. Can be specified a list of these values: Numeric, Boolean, Categorical, String, Label, Feature, Score, ObjectTime, AllWithNoObjects, All. If not specified, defaults to [All]",
+                    "type": "array"
+                },
+                "singleColumnSelection": {
+                    "description": "[Internal] This field only exist when the type is ColumnPicker. This field is to specify whether the column picker can select single or multiple columns. If not specified, defaults to False.",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "name",
+                "type"
+            ]
+        },
+        "InputPathPlaceholder": {
+            "type": "object",
+            "required": [
+                "inputPath"
+            ],
+            "properties": {
+                "inputPath": {
+                    "description": "Name of the input.",
+                    "type": "string"
+                }
+            }
+        },
+        "InputValuePlaceholder": {
+            "type": "object",
+            "required": [
+                "inputValue"
+            ],
+            "properties": {
+                "inputValue": {
+                    "description": "Name of the input.",
+                    "type": "string"
+                }
+            }
+        },
+        "IsPresentPlaceholder": {
+            "type": "object",
+            "properties": {
+                "isPresent": {
+                    "description": "Name of the input.",
+                    "type": "string"
+                }
+            }
+        },
+        "Meta": {
+            "type": "object",
+            "properties": {
+                "passThroughInRealTimeInference": {
+                    "description": "Some modules, such as \"Split Data Module\", is meaningless in a real-time inference pipeline. These modules should be \"passed through\" in the inference pipeline.\nBy specifying this flag to True, when creating real-time inference pipeline, the module will be removed, and the data connected to the module's input port will be redirected to its succeeding module.\nDefaults to False if not specified.",
+                    "type": "boolean"
+                },
+                "requireGpu": {
+                    "description": "Indicate whether the module requires GPU to run.\nWhen set to True, the computes without GPUs will not be shown in the WS2.0's \"Set up compute target\" list.\nDefaults to False if not specified.",
+                    "type": "boolean"
+                }
+            }
+        },
+        "Metadata": {
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "description": "Specifies arbitrary key-value pairs in this field.",
+                    "type": "object",
+                    "$ref": "#definitions/Annotations"
+                }
+            }
+        },
+        "Output": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The name of this Input. This field is used for program logic and cannot be duplicated inside the module. The name should not contain \"_\", \"/\", \"@\", \"[\", \"]\" as they are reserved for internal usage in the future.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Defines the type of this data.",
+                    "oneOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "description": {
+                    "description": "The detailed information that describes the Output.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ]
+        },
+        "OutputPathPlaceholder": {
+            "type": "object",
+            "required": [
+                "outputPath"
+            ],
+            "properties": {
+                "outputPath": {
+                    "description": "Name of the output.",
+                    "type": "string"
+                }
+            }
+        },
+        "PythonSection": {
+            "type": "object",
+            "properties": {
+                "condaDependenciesFile": {
+                    "description": "The path to the conda dependencies file to use for this run.",
+                    "type": "string"
+                },
+                "condaDependencies": {
+                    "description": "Same as condaDependenciesFile, but it is specifies the conda dependencies using an inlined dictionary rather than a separated file.",
+                    "type": "object"
+                }
+            }
+        },
+        "RunConfig": {
+            "type": "object",
+            "properties": {
+                "gpuSupport": {
+                    "type": "boolean",
+                    "description": "[Internal] Set to True if requires GPU to run the module."
+                }
+            }
+        },
+        "ServingEntry": {
+            "type": "object",
+            "properties": {
+                "conda": {
+                    "description": "Specifies the conda environment when running this module in web serving mode. If not specified, the conda field in Container will be reused.",
+                    "type": [
+                        "string",
+                        "object"
+                    ]
+                },
+                "module": {
+                    "description": "The python module name that can be imported by python. e.g. azureml.studio.modules.import_data",
+                    "type": "string"
+                },
+                "class": {
+                    "description": "The python class to be reflected by the invoker logic. The __init__ method of this class would be called automatically to initialize the required files (typically model files).",
+                    "type": "string"
+                },
+                "func": {
+                    "description": "The python function name for doing the inference. If not specified, will assume the function name to be run.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "module",
+                "class"
+            ]
+        },
+        "StringOrPlaceholder": {
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "$ref": "#definitions/InputValuePlaceholder"
+                },
+                {
+                    "$ref": "#definitions/InputPathPlaceholder"
+                },
+                {
+                    "$ref": "#definitions/OutputPathPlaceholder"
+                },
+                {
+                    "$ref": "#definitions/ConcatPlaceholder"
+                },
+                {
+                    "$ref": "#definitions/IfPlaceholder"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#definitions/StringOrPlaceholder"
+                    }
+                }
+            ]
+        }
+    }
+}
