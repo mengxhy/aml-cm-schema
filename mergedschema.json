@@ -229,11 +229,11 @@
                     ]
                 },
                 "image": {
-                    "description": "Note: Not implemented yet. Please use conda instead.\nSpecify the docker image path.",
+                    "description": "Specify the docker image path.",
                     "$ref": "#definitions/StringOrPlaceholder"
                 },
                 "command": {
-                    "description": "The python function name for doing the inferencing. If not specified, will assume the function name to be run.",
+                    "description": "Specify the command to start to run the module code.",
                     "type": "array",
                     "items": {
                         "$ref": "#definitions/StringOrPlaceholder"
@@ -262,7 +262,7 @@
                             "type": "string"
                         }
                     ],
-                    "description": "Specify additionalFiles to include additional files to the snapshot."
+                    "description": "Specify additional includes to the module snapshot."
                 }
             },
             "required": [
@@ -302,7 +302,7 @@
                     "items": {
                         "type": "string"
                     },
-                    "description": "Files to be referenced by file. Specify relative paths to the snapshot folder."
+                    "description": "Files to be referenced by 'file'. Specify relative paths to the snapshot folder."
                 },
                 "className": {
                     "type": "string",
@@ -313,32 +313,28 @@
                     "items": {
                         "type": "string"
                     },
-                    "description": "Jar files to be referenced by file. Specify relative paths to the snapshot folder."
+                    "description": "Jar files to be referenced by 'file'. Specify relative paths to the snapshot folder."
                 },
                 "pyFiles": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     },
-                    "description": "Python files to be referenced by file. Specify relative paths to the snapshot folder."
+                    "description": "Python files to be referenced by 'file'. Specify relative paths to the snapshot folder."
                 },
                 "archives": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     },
-                    "description": "Archives which referenced by file. Specify relative paths to the snapshot folder."
-                },
-                "conf": {
-                    "type": "object",
-                    "description": "Spark configuration properties."
+                    "description": "Archives which referenced by 'file'. Specify relative paths to the snapshot folder."
                 },
                 "args": {
                     "type": "array",
                     "items": {
                         "$ref": "#definitions/StringOrPlaceholder"
                     },
-                    "description": "Specify the arguments used along with file. This list may consist place holders of Inputs and Outputs."
+                    "description": "Specify the arguments used along with 'file'. This list may consist place holders of Inputs and Outputs."
                 }
             },
             "required": [
@@ -459,7 +455,7 @@
                     ]
                 },
                 "description": {
-                    "description": "The detailed information that describes the parameter. This message will be displayed on the user interface when hovered on the Parameter panel.",
+                    "description": "The detailed information that describes this input.",
                     "type": "string"
                 },
                 "min": {
@@ -556,11 +552,11 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "The name of this Input. This field is used for program logic and cannot be duplicated inside the module. The name should not contain \"_\", \"/\", \"@\", \"[\", \"]\" as they are reserved for internal usage in the future.",
+                    "description": "The name of this Output. This field is used for program logic and cannot be duplicated inside the module. The name should not contain \"_\", \"/\", \"@\", \"[\", \"]\" as they are reserved for internal usage in the future.",
                     "type": "string"
                 },
                 "type": {
-                    "description": "Defines the type of this data.",
+                    "description": "Defines the data type(s) of this output port.",
                     "oneOf": [
                         {
                             "type": "object"
@@ -576,7 +572,8 @@
                 }
             },
             "required": [
-                "name"
+                "name",
+                "type"
             ]
         },
         "OutputPathPlaceholder": {
