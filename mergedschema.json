@@ -32,7 +32,7 @@
         },
         "name": {
             "deprecated": true,
-            "description": "Moved to moduleIdentifier/moduleName. The name of module. Can not contain characters other than alphabets/digits/space. First character must be an alphabet.",
+            "description": "Moved to amlModuleIdentifier/moduleName. The name of module. Can not contain characters other than alphabets/digits/space. First character must be an alphabet.",
             "type": "string"
         },
         "category": {
@@ -40,10 +40,9 @@
             "type": "string"
         },
         "moduleIdentifier": {
-            "deprecated": true,
             "description": "Global unique identifier to the module.",
             "type": "object",
-            "$ref": "#definitions/AmlModuleIdentifier"
+            "$ref": "#definitions/ModuleIdentifier"
         },
         "amlModuleIdentifier": {
             "description": "Global unique identifier to the module.",
@@ -51,10 +50,9 @@
             "$ref": "#definitions/AmlModuleIdentifier"
         },
         "identifier": {
-            "deprecated": true,
             "description": "Global unique identifier to the module.",
             "type": "object",
-            "$ref": "#definitions/AmlModuleIdentifier"
+            "$ref": "#definitions/ModuleIdentifier"
         },
         "type": {
             "deprecated": true,
@@ -62,18 +60,21 @@
             "type": "string"
         },
         "jobType": {
-            "description": "Defines job type of the module. Could be basic, mpi, hdi, Defaults to basic if not specified, which refers to run job on a single compute node.",
+            "description": "Defines job type of the module. Could be basic, mpi, hdi, parallel. Defaults to basic if not specified, which refers to run job on a single compute node.",
             "type": "string",
             "enum": [
                 "basic",
                 "hdi",
                 "mpi",
+                "parallel",
                 "Basic",
                 "Hdi",
                 "Mpi",
+                "Parallel",
                 "BASIC",
                 "HDI",
-                "MPI"
+                "MPI",
+                "PARALLEL"
             ],
             "default": "basic"
         },
@@ -394,6 +395,11 @@
                     "type": "object",
                     "$ref": "#definitions/Hdi",
                     "description": "Defines the required information for running. (For hdi modules)"
+                },
+                "parallel": {
+                    "type": "object",
+                    "$ref": "#definitions/Parallel",
+                    "description": "Defines the required information for running. (For parallel modules)"
                 }
             },
             "oneOf": [
@@ -405,6 +411,11 @@
                 {
                     "required": [
                         "hdi"
+                    ]
+                },
+                {
+                    "required": [
+                        "parallel"
                     ]
                 }
             ]
@@ -548,6 +559,31 @@
                 }
             }
         },
+        "ModuleIdentifier": {
+            "type": "object",
+            "deprecated": true,
+            "required": [
+                "moduleName",
+                "moduleVersion"
+            ],
+            "properties": {
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace is used to avoid naming conflicts of modules created by different teams or organizations.",
+                    "pattern": "^[a-z0-9\\-]+[a-z0-9\\-\\.]*([\\/][a-z0-9\\-]+)*$"
+                },
+                "moduleName": {
+                    "type": "string",
+                    "description": "The name of module.",
+                    "pattern": "^[\\w\\-_\\[\\]()]+(?:[ ]+[\\w\\-_\\[\\]()]+)*$"
+                },
+                "moduleVersion": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                    "description": "Version of the module."
+                }
+            }
+        },
         "Output": {
             "type": "object",
             "properties": {
@@ -587,6 +623,65 @@
                     "type": "string"
                 }
             }
+        },
+        "Parallel": {
+            "type": "object",
+            "properties": {
+                "amlEnvironment": {
+                    "description": "The environment in where the entry script runs. Some packages must be included to the environment to enable the parallel module run.",
+                    "type": "object",
+                    "$ref": "#definitions/AmlEnvironment"
+                },
+                "additionalIncludes": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "Specify the additional files or folders to the module snapshot"
+                },
+                "inputData": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "The input(s) provide the data to be split into mini_batches for parallel execution. Specify the name(s) of the corresponding input(s) here."
+                },
+                "outputData": {
+                    "type": "string",
+                    "description": "The output for the summarized result that generated by the user script. Specify the name of the corresponding output here."
+                },
+                "entry": {
+                    "type": "string",
+                    "description": "The user script to process mini_batches."
+                },
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#definitions/StringOrPlaceholder"
+                    },
+                    "description": "The arguments passed to the user script. This list may consist place holders of Inputs and Outputs. "
+                }
+            },
+            "required": [
+                "amlEnvironment",
+                "inputData",
+                "outputData",
+                "entry"
+            ]
         },
         "PythonSection": {
             "type": "object",
