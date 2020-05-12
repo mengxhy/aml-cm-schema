@@ -64,17 +64,18 @@
             "type": "string",
             "enum": [
                 "basic",
-                "hdi",
+                "hdinsight",
                 "mpi",
                 "parallel",
                 "Basic",
-                "Hdi",
+                "HDInsight",
                 "Mpi",
                 "Parallel",
                 "BASIC",
-                "HDI",
+                "HDINSIGHT",
                 "MPI",
-                "PARALLEL"
+                "PARALLEL",
+                "HdInsight"
             ],
             "default": "basic"
         },
@@ -163,17 +164,17 @@
             "properties": {
                 "namespace": {
                     "type": "string",
-                    "description": "Namespace is used to avoid naming conflicts of modules created by different teams or organizations.",
-                    "pattern": "^[a-z0-9\\-]+[a-z0-9\\-\\.]*([\\/][a-z0-9\\-]+)*$"
+                    "description": "Namespace is used to avoid naming conflicts of modules created by different teams or organizations."
                 },
                 "moduleName": {
                     "type": "string",
-                    "description": "The name of module.",
-                    "pattern": "^[\\w\\-_\\[\\]()]+(?:[ ]+[\\w\\-_\\[\\]()]+)*$"
+                    "description": "The name of module."
                 },
                 "moduleVersion": {
-                    "type": "string",
-                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                    "type": [
+                        "string",
+                        "number"
+                    ],
                     "description": "Version of the module."
                 }
             }
@@ -291,7 +292,7 @@
                 }
             }
         },
-        "Hdi": {
+        "HDInsight": {
             "type": "object",
             "properties": {
                 "file": {
@@ -391,9 +392,9 @@
                     "$ref": "#definitions/ServingEntry",
                     "description": "[Internal] Used when deployed as a web service."
                 },
-                "hdi": {
+                "hdinsight": {
                     "type": "object",
-                    "$ref": "#definitions/Hdi",
+                    "$ref": "#definitions/HDInsight",
                     "description": "Defines the required information for running. (For hdi modules)"
                 },
                 "parallel": {
@@ -410,7 +411,7 @@
                 },
                 {
                     "required": [
-                        "hdi"
+                        "hdinsight"
                     ]
                 },
                 {
@@ -569,17 +570,17 @@
             "properties": {
                 "namespace": {
                     "type": "string",
-                    "description": "Namespace is used to avoid naming conflicts of modules created by different teams or organizations.",
-                    "pattern": "^[a-z0-9\\-]+[a-z0-9\\-\\.]*([\\/][a-z0-9\\-]+)*$"
+                    "description": "Namespace is used to avoid naming conflicts of modules created by different teams or organizations."
                 },
                 "moduleName": {
                     "type": "string",
-                    "description": "The name of module.",
-                    "pattern": "^[\\w\\-_\\[\\]()]+(?:[ ]+[\\w\\-_\\[\\]()]+)*$"
+                    "description": "The name of module."
                 },
                 "moduleVersion": {
-                    "type": "string",
-                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                    "type": [
+                        "string",
+                        "number"
+                    ],
                     "description": "Version of the module."
                 }
             }
@@ -632,6 +633,10 @@
                     "type": "object",
                     "$ref": "#definitions/AmlEnvironment"
                 },
+                "image": {
+                    "description": "Specify the docker image path.",
+                    "$ref": "#definitions/StringOrPlaceholder"
+                },
                 "additionalIncludes": {
                     "oneOf": [
                         {
@@ -677,10 +682,21 @@
                 }
             },
             "required": [
-                "amlEnvironment",
                 "inputData",
                 "outputData",
                 "entry"
+            ],
+            "oneOf": [
+                {
+                    "required": [
+                        "amlEnvironment"
+                    ]
+                },
+                {
+                    "required": [
+                        "image"
+                    ]
+                }
             ]
         },
         "PythonSection": {
