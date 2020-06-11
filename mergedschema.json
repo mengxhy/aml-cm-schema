@@ -283,6 +283,10 @@
                 }
             ]
         },
+        "DataType": {
+            "type": "string",
+            "pattern": "^[^<>]+$"
+        },
         "DockerSection": {
             "type": "object",
             "properties": {
@@ -401,6 +405,19 @@
                     "type": "object",
                     "$ref": "#definitions/Parallel",
                     "description": "Defines the required information for running. (For parallel modules)"
+                },
+                "os": {
+                    "description": "Defines the operating system the module running on. Could be `windows` or `linux`. Defaults to `linux` if not specified.",
+                    "type": "string",
+                    "enum": [
+                        "windows",
+                        "linux",
+                        "Windows",
+                        "Linux",
+                        "WINDOWS",
+                        "LINUX"
+                    ],
+                    "default": "linux"
                 }
             },
             "oneOf": [
@@ -435,14 +452,14 @@
                             "type": "object"
                         },
                         {
-                            "type": "string"
+                            "$ref": "#definitions/DataType"
                         },
                         {
                             "type": "array",
                             "items": {
                                 "oneOf": [
                                     {
-                                        "type": "string"
+                                        "$ref": "#definitions/DataType"
                                     },
                                     {
                                         "type": "object"
@@ -599,7 +616,7 @@
                             "type": "object"
                         },
                         {
-                            "type": "string"
+                            "$ref": "#definitions/DataType"
                         }
                     ]
                 },
