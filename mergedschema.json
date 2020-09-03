@@ -196,6 +196,10 @@
                 "helpDocument": {
                     "description": "The url of the module's documentation. Will be shown as a link on AML Designer's page.",
                     "type": "string"
+                },
+                "codegenBy": {
+                    "description": "The automation tool name which generated this yaml spec file.",
+                    "type": "string"
                 }
             }
         },
@@ -234,6 +238,11 @@
                     "description": "Specify the docker image path.",
                     "$ref": "#definitions/StringOrPlaceholder"
                 },
+                "sourceDirectory": {
+                    "type": "string",
+                    "pattern": "^(\\.\\.?/)+(\\.\\.?)?$",
+                    "description": "Specify the source directory of the module. It should be a relative path start from the module spec file."
+                },
                 "command": {
                     "description": "Specify the command to start to run the module code.",
                     "type": "array",
@@ -251,20 +260,6 @@
                 "runConfig": {
                     "type": "object",
                     "$ref": "#definitions/RunConfig"
-                },
-                "additionalIncludes": {
-                    "oneOf": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "Specify additional includes to the module snapshot."
                 }
             },
             "required": [
@@ -299,6 +294,11 @@
         "HDInsight": {
             "type": "object",
             "properties": {
+                "sourceDirectory": {
+                    "type": "string",
+                    "pattern": "^(\\.\\.?/)+(\\.\\.?)?$",
+                    "description": "Specify the source directory of the module. It should be a relative path start from the module spec file."
+                },
                 "file": {
                     "type": "string",
                     "description": "The main file name, can be a python script or a jar file. It's a relative path to the snapshot folder."
@@ -469,6 +469,11 @@
                         }
                     ]
                 },
+                "argumentName": {
+                    "description": "Variable name referencing this input when used in python SDK.",
+                    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+                    "type": "string"
+                },
                 "optional": {
                     "description": "Indicates whether this input is optional. Default value is False.",
                     "type": "boolean",
@@ -620,6 +625,11 @@
                         }
                     ]
                 },
+                "argumentName": {
+                    "description": "Variable name referencing this output when used in python SDK.",
+                    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+                    "type": "string"
+                },
                 "description": {
                     "description": "The detailed information that describes the Output.",
                     "type": "string"
@@ -654,19 +664,10 @@
                     "description": "Specify the docker image path.",
                     "$ref": "#definitions/StringOrPlaceholder"
                 },
-                "additionalIncludes": {
-                    "oneOf": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "Specify the additional files or folders to the module snapshot"
+                "sourceDirectory": {
+                    "type": "string",
+                    "pattern": "^(\\.\\.?/)+(\\.\\.?)?$",
+                    "description": "Specify the source directory of the module. It should be a relative path start from the module spec file."
                 },
                 "inputData": {
                     "oneOf": [
@@ -726,6 +727,10 @@
                 "condaDependencies": {
                     "description": "Same as condaDependenciesFile, but it is specifies the conda dependencies using an inlined dictionary rather than a separated file.",
                     "type": "object"
+                },
+                "pipRequirementsFile": {
+                    "description": "The path to the requirements.txt file. A default conda environment will be created from pip requirements while registering module.",
+                    "type": "string"
                 }
             }
         },
